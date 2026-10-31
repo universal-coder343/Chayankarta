@@ -2,24 +2,84 @@
 Pytest configuration and shared fixtures for the test suite.
 """
 
+import hashlib
 import os
 import sys
 import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import numpy as np
 import pytest
 from httpx import ASGITransport, AsyncClient
 
 # Ensure the backend package is importable
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
+# Configure pytest-asyncio to auto mode (no need to mark each test)
+pytest_plugins = ("pytest_asyncio",)
+
+
+# ---------------------------------------------------------------------------
+# Fake embedding model — deterministic, no sentence-transformers required
+# ---------------------------------------------------------------------------
+
+class _FakeModel:
+    """
+    Drop-in replacement for SentenceTransformer(all-MiniLM-L6-v2).
+
+    * Returns deterministic 384-dim unit-length vectors (seeded by MD5 of text)
+    * Accepts the same kwargs as the real model's encode() method
+    * Works for both single strings and lists (batch)
+    """
+
+    DIM = 384
+
+    def get_sentence_embedding_dimension(self):
+        return self.DIM
+
+    def encode(self, sentences, normalize_embeddings=True,
+               show_progress_bar=False, batch_size=32):
+        if isinstance(sentences, str):
+            sentences = [sentences]
+        vecs = []
+        for s in sentences:
+            seed = int(hashlib.md5(s.encode()).hexdigest(), 16) % (2 ** 31)
+            rng = np.random.default_rng(seed)
+            v = rng.standard_normal(self.DIM).astype(np.float32)
+            if normalize_embeddings:
+                norm = np.linalg.norm(v)
+                if norm > 0:
+                    v = v / norm
+            vecs.append(v)
+        result = np.array(vecs)
+        return result if len(vecs) > 1 else result[0]
+
+
+@pytest.fixture(autouse=True, scope="session")
+def patch_sentence_transformers():
+    """
+    Replace the real SentenceTransformer with _FakeModel for the entire test
+    session.  This means:
+    - sentence-transformers does NOT need to be installed.
+    - Tests run fast (no model download / GPU init).
+    - Embeddings are deterministic across runs.
+
+    Tests that need custom embedding behaviour (e.g. test_embedder.py) can
+    override _get_model locally via monkeypatch — the local patch wins because
+    lru_cache is cleared before each override.
+    """
+    import app.services.embedder as embedder_mod
+    _fake = _FakeModel()
+    embedder_mod._get_model.cache_clear()
+    with patch.object(embedder_mod, "_get_model", new=lambda: _fake):
+        yield
+    embedder_mod._get_model.cache_clear()
+
 
 @pytest.fixture(scope="session")
-def event_loop():
-    """Create an event loop for the entire test session."""
-    loop = asyncio.new_event_loop()
-    yield loop
-    loop.close()
+def event_loop_policy():
+    """Use the default event loop policy."""
+    return asyncio.DefaultEventLoopPolicy()
 
 
 @pytest.fixture

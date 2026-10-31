@@ -6,7 +6,7 @@ import logging
 import uuid
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
 from pydantic import BaseModel
 
 from ..db import get_database
@@ -20,6 +20,31 @@ from ..services.jd_parser import parse_job_description
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+
+async def _generate_jd_embedding(jd_id: str, raw_text: str) -> None:
+    """
+    Background task: embed JD text and persist the vector to MongoDB.
+    Triggered after POST /api/jds/ returns so the endpoint stays fast.
+    """
+    import asyncio
+    from concurrent.futures import ThreadPoolExecutor
+    from ..services.embedder import embed_text
+
+    _executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="bg_jd_embed")
+    try:
+        db = get_database()
+        loop = asyncio.get_event_loop()
+        vec = await loop.run_in_executor(_executor, lambda: embed_text(raw_text))
+        await db["job_descriptions"].update_one(
+            {"_id": jd_id},
+            {"$set": {"embedding": vec}},
+        )
+        logger.info("Background embedding stored for JD id=%s", jd_id)
+    except Exception as exc:
+        logger.warning("Background embedding failed for JD id=%s: %s", jd_id, exc)
+    finally:
+        _executor.shutdown(wait=False)
 
 
 # --- Request body schema ---
@@ -44,7 +69,7 @@ def _doc_to_response(doc: dict) -> JobDescriptionResponse:
 
 
 @router.post("/", response_model=JobDescriptionResponse, status_code=201)
-async def create_job_description(body: JDCreateRequest):
+async def create_job_description(body: JDCreateRequest, background_tasks: BackgroundTasks = BackgroundTasks()):
     """
     Create a new job description.
 
@@ -72,6 +97,9 @@ async def create_job_description(body: JDCreateRequest):
 
     await db["job_descriptions"].insert_one(doc_dict)
     logger.info("Job description '%s' stored with id=%s", body.title, jd_id)
+
+    # Generate embedding in the background (non-blocking)
+    background_tasks.add_task(_generate_jd_embedding, jd_id, body.raw_text)
 
     return _doc_to_response(doc_dict)
 

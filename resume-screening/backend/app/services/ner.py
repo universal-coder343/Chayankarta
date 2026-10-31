@@ -5,6 +5,13 @@ Hybrid pipeline:
 1. spaCy NER (en_core_web_sm) — PERSON, ORG, DATE, GPE
 2. PhraseMatcher — skills from skills_taxonomy.json (case-insensitive)
 3. Regex — email, phone, education, certifications
+
+Note on imports
+---------------
+spaCy and its sub-modules are imported *lazily* (inside functions) so that
+the module can be collected by pytest even when the spaCy DLL cannot be
+loaded (e.g. Windows Application Control Policy blocks ujson.dll). All
+behaviour at runtime is identical to eager imports.
 """
 
 import json
@@ -12,10 +19,6 @@ import logging
 import os
 import re
 from functools import lru_cache
-
-import spacy
-from spacy.matcher import PhraseMatcher
-from spacy.tokens import Span
 
 from ..models.resume import ResumeNER
 
@@ -77,6 +80,9 @@ def _load_skills_list() -> list[str]:
 @lru_cache(maxsize=1)
 def get_nlp():
     """Load the spaCy model and attach the skills PhraseMatcher component."""
+    import spacy  # lazy import — avoids DLL load at module level
+    from spacy.matcher import PhraseMatcher  # noqa: lazy
+
     nlp = spacy.load("en_core_web_sm")
 
     # Build PhraseMatcher with skills taxonomy
@@ -106,6 +112,9 @@ def extract_entities(text: str, category: str | None = None) -> ResumeNER:
     Returns:
         ResumeNER with all extracted fields.
     """
+    from spacy.matcher import PhraseMatcher  # noqa: lazy
+    from spacy.tokens import Span  # noqa: lazy
+
     nlp = get_nlp()
     doc = nlp(text)
     matcher: PhraseMatcher = nlp.meta["_skills_matcher"]

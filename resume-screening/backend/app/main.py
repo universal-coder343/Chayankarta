@@ -1,6 +1,6 @@
 """
 FastAPI application entry point.
-Configures lifespan (Mongo + spaCy), CORS, logging, health check, and routers.
+Configures lifespan (Mongo + spaCy + embedder), CORS, logging, health check, and routers.
 """
 
 import logging
@@ -14,6 +14,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from .config import get_settings
 from .db import connect_db, close_db, get_database
 from .routers import resumes, jds
+from .routers import ranking as ranking_router
+from .routers import audit as audit_router
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -35,7 +37,7 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     """Manage startup and shutdown tasks."""
     # ---- Startup ----
-    logger.info("Starting up Smart Resume Screening API ...")
+    logger.info("Starting up Smart Resume Screening API (Phase 2) ...")
 
     # Ensure upload directory exists
     os.makedirs(settings.upload_dir, exist_ok=True)
@@ -43,10 +45,27 @@ async def lifespan(app: FastAPI):
     # Connect to MongoDB
     await connect_db()
 
-    # Pre-load spaCy model (so the first request isn't slow)
-    from .services.ner import get_nlp  # noqa: lazy import to avoid circular deps
-    get_nlp()
-    logger.info("spaCy NLP model loaded.")
+    # Pre-load spaCy model (so the first request isn't slow).
+    # Wrapped in try/except because on some machines (e.g. Windows with an
+    # Application Control Policy) the underlying PyTorch/thinc DLL is blocked.
+    # The server still starts successfully; spaCy is loaded lazily on first use.
+    try:
+        from .services.ner import get_nlp  # noqa: lazy import
+        get_nlp()
+        logger.info("spaCy NLP model loaded.")
+    except Exception as exc:
+        logger.warning(
+            "Could not pre-load spaCy model (NER will be attempted on first request): %s",
+            exc,
+        )
+
+    # Pre-load sentence-transformers embedding model
+    try:
+        from .services.embedder import _get_model  # noqa: lazy import
+        _get_model()
+        logger.info("SentenceTransformer embedding model loaded.")
+    except Exception as exc:
+        logger.warning("Could not pre-load embedding model: %s", exc)
 
     logger.info("Startup complete.")
     yield
@@ -62,8 +81,11 @@ async def lifespan(app: FastAPI):
 # ---------------------------------------------------------------------------
 app = FastAPI(
     title="Smart Resume Screening API",
-    description="AI-powered resume screening and candidate ranking system — Phase 1",
-    version="0.1.0",
+    description=(
+        "AI-powered resume screening and candidate ranking system — "
+        "Phase 2: Semantic Ranking + Fairness Audit"
+    ),
+    version="0.2.0",
     lifespan=lifespan,
 )
 
@@ -76,9 +98,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Routers
+# Routers — Phase 1
 app.include_router(resumes.router, prefix="/api/resumes", tags=["Resumes"])
 app.include_router(jds.router, prefix="/api/jds", tags=["Job Descriptions"])
+
+# Routers — Phase 2 (Milestones 4 & 5)
+app.include_router(ranking_router.router, prefix="/api/rankings", tags=["Rankings"])
+app.include_router(audit_router.router, prefix="/api/audit", tags=["Fairness Audit"])
 
 
 # ---------------------------------------------------------------------------
@@ -99,4 +125,10 @@ async def health_check():
         "status": "ok" if db_status == "connected" else "degraded",
         "db": db_status,
         "timestamp": datetime.now(timezone.utc).isoformat(),
+        "version": "0.2.0",
+        "features": {
+            "semantic_ranking": True,
+            "pii_redaction": settings.enable_redaction,
+            "fairness_audit": True,
+        },
     }

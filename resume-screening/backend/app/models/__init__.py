@@ -14,6 +14,15 @@ from .job_description import (
     JobDescriptionResponse,
     JobDescriptionListResponse,
 )
+from .ranking import (
+    ScoringWeights,
+    RankRequest,
+    ScoreBreakdown,
+    CandidateRank,
+    RankResponse,
+    GroupMetrics,
+    FairnessAuditResponse,
+)
 
 __all__ = [
     "ResumeBase",
@@ -28,4 +37,11 @@ __all__ = [
     "JobDescriptionInDB",
     "JobDescriptionResponse",
     "JobDescriptionListResponse",
+    "ScoringWeights",
+    "RankRequest",
+    "ScoreBreakdown",
+    "CandidateRank",
+    "RankResponse",
+    "GroupMetrics",
+    "FairnessAuditResponse",
 ]

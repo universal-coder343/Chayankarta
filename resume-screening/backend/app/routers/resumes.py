@@ -7,7 +7,7 @@ import os
 import uuid
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, File, HTTPException, Query, UploadFile
+from fastapi import APIRouter, BackgroundTasks, File, HTTPException, Query, UploadFile
 
 from ..config import get_settings
 from ..db import get_database
@@ -17,6 +17,32 @@ from ..services.parser import ParseResult, parse_resume
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+
+async def _generate_and_store_embedding(resume_id: str, raw_text: str) -> None:
+    """
+    Background task: embed resume text and persist the vector to MongoDB.
+    Runs after the HTTP response has been sent, so the upload endpoint
+    stays fast even when the embedding model is cold.
+    """
+    import asyncio
+    from concurrent.futures import ThreadPoolExecutor
+    from ..services.embedder import embed_text
+
+    _executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="bg_embed")
+    try:
+        db = get_database()
+        loop = asyncio.get_event_loop()
+        vec = await loop.run_in_executor(_executor, lambda: embed_text(raw_text))
+        await db["resumes"].update_one(
+            {"_id": resume_id},
+            {"$set": {"embedding": vec}},
+        )
+        logger.info("Background embedding stored for resume id=%s", resume_id)
+    except Exception as exc:
+        logger.warning("Background embedding failed for resume id=%s: %s", resume_id, exc)
+    finally:
+        _executor.shutdown(wait=False)
 
 
 def _doc_to_response(doc: dict) -> ResumeResponse:
@@ -33,7 +59,7 @@ def _doc_to_response(doc: dict) -> ResumeResponse:
 
 
 @router.post("/upload", response_model=ResumeResponse, status_code=201)
-async def upload_resume(file: UploadFile = File(...)):
+async def upload_resume(file: UploadFile = File(...), background_tasks: BackgroundTasks = BackgroundTasks()):
     """
     Upload a resume file (PDF, DOCX, PNG, JPG).
 
@@ -98,6 +124,11 @@ async def upload_resume(file: UploadFile = File(...)):
         # Insert into MongoDB
         await db["resumes"].insert_one(doc_dict)
         logger.info("Resume '%s' stored with id=%s", file.filename, file_id)
+
+        # Generate embedding in the background (non-blocking)
+        background_tasks.add_task(
+            _generate_and_store_embedding, file_id, result.raw_text
+        )
 
         return _doc_to_response(doc_dict)
 

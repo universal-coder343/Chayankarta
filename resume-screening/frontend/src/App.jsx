@@ -6,10 +6,12 @@ import ResumeDetailModal from './components/ResumeDetailModal'
 import JobDescriptions from './components/JobDescriptions'
 import PipelineOverview from './components/PipelineOverview'
 import Dashboard from './components/Dashboard'
+import Rankings from './components/Rankings'
+import FairnessAudit from './components/FairnessAudit'
 import Footer from './components/Footer'
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('resumes') // 'resumes', 'jds', 'dashboard', 'pipeline'
+  const [activeTab, setActiveTab] = useState('resumes')
   const [resumes, setResumes] = useState([])
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -89,6 +91,10 @@ export default function App() {
         )}
 
         {activeTab === 'jds' && <JobDescriptions showToast={showToast} />}
+
+        {activeTab === 'rankings' && <Rankings showToast={showToast} />}
+
+        {activeTab === 'fairness' && <FairnessAudit showToast={showToast} />}
 
         {activeTab === 'dashboard' && (
           <Dashboard

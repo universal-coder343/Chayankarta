@@ -1,31 +1,44 @@
 import { useState } from 'react'
 
 export default function ResumeDetailModal({ resume, onClose }) {
-  const [activeTab, setActiveTab] = useState('entities') // 'entities', 'json', 'raw_text'
+  const [activeTab, setActiveTab] = useState('entities')
 
   if (!resume) return null
 
   const ner = resume.ner || {}
-  const candidate = ner.candidate_name || 'Candidate Details'
-  const contact = ner.contact_info || {}
-  const emails = contact.emails || []
-  const phones = contact.phones || []
-  const urls = contact.urls || []
-  const location = contact.location || null
 
-  const skillsCategorized = ner.skills_categorized || {}
-  const allSkills = ner.skills_all || []
-  const experience = ner.experience || {}
-  const education = ner.education || {}
+  // ── Normalise flat backend schema (name/email/phone/skills/education/experience)
+  // to what the UI needs, while staying compatible if the schema changes.
+  const candidate = ner.name || ner.candidate_name || 'Unknown Candidate'
 
-  const categoryLabels = {
-    languages: { name: 'Programming Languages', color: 'primary' },
-    frameworks: { name: 'Frameworks & Libraries', color: 'secondary' },
-    databases: { name: 'Databases & Storage', color: 'tertiary' },
-    devops_cloud: { name: 'DevOps & Cloud', color: 'primary-container' },
-    tools_platforms: { name: 'Tools & Platforms', color: 'secondary-container' },
-    methodologies: { name: 'Methodologies & Concepts', color: 'outline' },
-  }
+  const emails   = ner.email   ? [ner.email]   : (ner.contact_info?.emails  || [])
+  const phones   = ner.phone   ? [ner.phone]   : (ner.contact_info?.phones  || [])
+  const urls     = ner.contact_info?.urls || []
+  const location = ner.contact_info?.location  || null
+
+  // skills — backend sends a flat array
+  const allSkills = Array.isArray(ner.skills) ? ner.skills
+                  : Array.isArray(ner.skills_all) ? ner.skills_all
+                  : []
+
+  // experience — backend sends a list of strings or an object
+  const experienceLines = Array.isArray(ner.experience) ? ner.experience : []
+  const experienceYears = typeof ner.experience === 'object' && !Array.isArray(ner.experience)
+                          ? (ner.experience?.total_years_est ?? null)
+                          : null
+  const jobTitles = typeof ner.experience === 'object' && !Array.isArray(ner.experience)
+                    ? (ner.experience?.job_titles || [])
+                    : []
+
+  // education — backend sends a list of degree strings or an object
+  const educationDegrees = Array.isArray(ner.education)
+                           ? ner.education
+                           : (ner.education?.degrees || [])
+  const educationInstitutions = Array.isArray(ner.education)
+                                 ? []
+                                 : (ner.education?.institutions || [])
+
+  const certifications = ner.certifications || []
 
   return (
     <div
@@ -36,7 +49,7 @@ export default function ResumeDetailModal({ resume, onClose }) {
         className="w-full max-w-4xl max-h-[90vh] flex flex-col bg-surface-container-lowest rounded-2xl border border-outline-variant/90 shadow-2xl overflow-hidden text-on-surface"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Modal Top Header */}
+        {/* ── Header ── */}
         <div className="flex items-center justify-between p-6 border-b border-outline-variant/70 bg-surface-container-low/60">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-primary-fixed border border-primary/30 flex items-center justify-center text-primary font-bold text-headline-sm">
@@ -59,51 +72,37 @@ export default function ResumeDetailModal({ resume, onClose }) {
           </button>
         </div>
 
-        {/* Modal Tabs */}
+        {/* ── Tabs ── */}
         <div className="flex items-center gap-6 px-6 border-b border-outline-variant/60 bg-surface-container-lowest">
-          <button
-            type="button"
-            onClick={() => setActiveTab('entities')}
-            className={`py-3 text-label-md font-label-md flex items-center gap-2 border-b-2 font-semibold transition-colors cursor-pointer ${
-              activeTab === 'entities'
-                ? 'border-primary text-primary'
-                : 'border-transparent text-on-surface-variant hover:text-on-surface'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[18px]">verified</span>
-            Extracted Entities &amp; Skills ({allSkills.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('json')}
-            className={`py-3 text-label-md font-label-md flex items-center gap-2 border-b-2 font-semibold transition-colors cursor-pointer ${
-              activeTab === 'json'
-                ? 'border-primary text-primary'
-                : 'border-transparent text-on-surface-variant hover:text-on-surface'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[18px]">data_object</span>
-            Parsed JSON (NER Schema)
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('raw_text')}
-            className={`py-3 text-label-md font-label-md flex items-center gap-2 border-b-2 font-semibold transition-colors cursor-pointer ${
-              activeTab === 'raw_text'
-                ? 'border-primary text-primary'
-                : 'border-transparent text-on-surface-variant hover:text-on-surface'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[18px]">notes</span>
-            Raw Extracted Text
-          </button>
+          {[
+            { id: 'entities', icon: 'verified',    label: `Extracted Entities & Skills (${allSkills.length})` },
+            { id: 'json',     icon: 'data_object', label: 'Parsed JSON (NER Schema)' },
+            { id: 'raw_text', icon: 'notes',       label: 'Raw Extracted Text' },
+          ].map(({ id, icon, label }) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setActiveTab(id)}
+              className={`py-3 text-label-md font-label-md flex items-center gap-2 border-b-2 font-semibold transition-colors cursor-pointer ${
+                activeTab === id
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-on-surface-variant hover:text-on-surface'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[18px]">{icon}</span>
+              {label}
+            </button>
+          ))}
         </div>
 
-        {/* Modal Body */}
+        {/* ── Body ── */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+
+          {/* ── Entities tab ── */}
           {activeTab === 'entities' && (
             <div className="space-y-6">
-              {/* Contact Information */}
+
+              {/* Contact */}
               <div className="p-5 rounded-xl bg-surface-container-low border border-outline-variant/70 space-y-3">
                 <h3 className="text-title-md font-title-md font-bold text-on-surface flex items-center gap-2">
                   <span className="material-symbols-outlined text-[18px] text-primary">contacts</span>
@@ -120,11 +119,15 @@ export default function ResumeDetailModal({ resume, onClose }) {
                   </div>
                   <div>
                     <span className="text-label-sm font-label-sm text-outline uppercase block">Email Address:</span>
-                    <span className="text-on-surface font-code-metric">{emails.length ? emails.join(', ') : 'None extracted'}</span>
+                    <span className="text-on-surface font-code-metric">
+                      {emails.length ? emails.join(', ') : 'None extracted'}
+                    </span>
                   </div>
                   <div>
                     <span className="text-label-sm font-label-sm text-outline uppercase block">Phone:</span>
-                    <span className="text-on-surface font-code-metric">{phones.length ? phones.join(', ') : 'None extracted'}</span>
+                    <span className="text-on-surface font-code-metric">
+                      {phones.length ? phones.join(', ') : 'None extracted'}
+                    </span>
                   </div>
                   {urls.length > 0 && (
                     <div className="md:col-span-2">
@@ -147,24 +150,27 @@ export default function ResumeDetailModal({ resume, onClose }) {
                 </div>
               </div>
 
-              {/* Experience & Education Grid */}
+              {/* Experience & Education */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Experience */}
                 <div className="p-5 rounded-xl bg-surface-container-low border border-outline-variant/70 space-y-3">
                   <h3 className="text-title-md font-title-md font-bold text-on-surface flex items-center gap-2">
                     <span className="material-symbols-outlined text-[18px] text-secondary">work_history</span>
                     Work Experience
                   </h3>
-                  <div className="flex items-center gap-2">
-                    <span className="text-headline-md font-headline-md text-secondary font-bold font-code-metric">
-                      {experience.total_years_est ?? 'N/A'}
-                    </span>
-                    <span className="text-body-sm font-body-sm text-on-surface-variant">years estimated</span>
-                  </div>
-                  {experience.job_titles?.length > 0 && (
+                  {experienceYears !== null ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-headline-md font-headline-md text-secondary font-bold font-code-metric">
+                        {experienceYears}
+                      </span>
+                      <span className="text-body-sm font-body-sm text-on-surface-variant">years estimated</span>
+                    </div>
+                  ) : null}
+                  {jobTitles.length > 0 && (
                     <div>
                       <span className="text-label-sm font-label-sm text-outline uppercase block mb-1">Detected Roles:</span>
                       <div className="flex flex-wrap gap-1.5">
-                        {experience.job_titles.map((t, i) => (
+                        {jobTitles.map((t, i) => (
                           <span key={i} className="px-2 py-0.5 rounded text-label-sm font-label-sm bg-primary-fixed text-primary font-medium">
                             {t}
                           </span>
@@ -172,18 +178,29 @@ export default function ResumeDetailModal({ resume, onClose }) {
                       </div>
                     </div>
                   )}
+                  {experienceLines.length > 0 && (
+                    <ul className="text-body-sm font-body-sm text-on-surface-variant space-y-1 list-disc list-inside">
+                      {experienceLines.map((line, i) => (
+                        <li key={i}>{line}</li>
+                      ))}
+                    </ul>
+                  )}
+                  {experienceYears === null && jobTitles.length === 0 && experienceLines.length === 0 && (
+                    <p className="text-body-sm font-body-sm text-on-surface-variant italic">No experience data extracted.</p>
+                  )}
                 </div>
 
+                {/* Education */}
                 <div className="p-5 rounded-xl bg-surface-container-low border border-outline-variant/70 space-y-3">
                   <h3 className="text-title-md font-title-md font-bold text-on-surface flex items-center gap-2">
                     <span className="material-symbols-outlined text-[18px] text-emerald-800">school</span>
                     Education
                   </h3>
-                  {education.degrees?.length > 0 ? (
+                  {educationDegrees.length > 0 ? (
                     <div>
                       <span className="text-label-sm font-label-sm text-outline uppercase block mb-1">Degrees:</span>
                       <div className="flex flex-wrap gap-1.5">
-                        {education.degrees.map((d, i) => (
+                        {educationDegrees.map((d, i) => (
                           <span key={i} className="px-2 py-0.5 rounded text-label-sm font-label-sm bg-surface-container-lowest border border-outline-variant text-on-surface font-medium">
                             {d}
                           </span>
@@ -193,11 +210,11 @@ export default function ResumeDetailModal({ resume, onClose }) {
                   ) : (
                     <p className="text-body-sm font-body-sm text-on-surface-variant italic">No degrees explicitly matched.</p>
                   )}
-                  {education.institutions?.length > 0 && (
+                  {educationInstitutions.length > 0 && (
                     <div>
                       <span className="text-label-sm font-label-sm text-outline uppercase block mb-1">Institutions:</span>
                       <div className="flex flex-wrap gap-1.5">
-                        {education.institutions.map((inst, i) => (
+                        {educationInstitutions.map((inst, i) => (
                           <span key={i} className="px-2 py-0.5 rounded text-label-sm font-label-sm bg-surface-container-lowest text-on-surface-variant">
                             {inst}
                           </span>
@@ -208,42 +225,48 @@ export default function ResumeDetailModal({ resume, onClose }) {
                 </div>
               </div>
 
-              {/* Categorized Skills Taxonomy */}
+              {/* Skills */}
               <div className="p-5 rounded-xl bg-surface-container-low border border-outline-variant/70 space-y-4">
                 <h3 className="text-title-md font-title-md font-bold text-on-surface flex items-center gap-2">
                   <span className="material-symbols-outlined text-[18px] text-primary">psychology</span>
-                  Extracted Skills Taxonomy ({allSkills.length} Total)
+                  Extracted Skills ({allSkills.length} Total)
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {Object.entries(skillsCategorized).map(([catKey, skills]) => {
-                    if (!skills || !skills.length) return null
-                    const meta = categoryLabels[catKey] || { name: catKey }
-                    return (
-                      <div key={catKey} className="p-3 rounded-lg bg-surface-container-lowest border border-outline-variant/60">
-                        <span className="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider block mb-2 font-semibold">
-                          {meta.name} ({skills.length})
-                        </span>
-                        <div className="flex flex-wrap gap-1.5">
-                          {skills.map((s, idx) => (
-                            <span key={idx} className="px-2 py-0.5 rounded text-label-sm font-label-sm bg-primary-fixed border border-primary/25 text-primary font-medium">
-                              {s}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
+                {allSkills.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {allSkills.map((s, idx) => (
+                      <span key={idx} className="px-2 py-0.5 rounded text-label-sm font-label-sm bg-primary-fixed border border-primary/25 text-primary font-medium">
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-body-sm font-body-sm text-on-surface-variant italic">No skills matched from taxonomy.</p>
+                )}
               </div>
+
+              {/* Certifications */}
+              {certifications.length > 0 && (
+                <div className="p-5 rounded-xl bg-surface-container-low border border-outline-variant/70 space-y-3">
+                  <h3 className="text-title-md font-title-md font-bold text-on-surface flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[18px] text-tertiary">verified_user</span>
+                    Certifications
+                  </h3>
+                  <ul className="text-body-sm font-body-sm text-on-surface space-y-1 list-disc list-inside">
+                    {certifications.map((c, i) => <li key={i}>{c}</li>)}
+                  </ul>
+                </div>
+              )}
             </div>
           )}
 
+          {/* ── JSON tab ── */}
           {activeTab === 'json' && (
             <div className="p-4 rounded-xl bg-inverse-surface text-inverse-on-surface font-code-md text-[12px] overflow-x-auto shadow-inner">
               <pre>{JSON.stringify(resume, null, 2)}</pre>
             </div>
           )}
 
+          {/* ── Raw text tab ── */}
           {activeTab === 'raw_text' && (
             <div className="p-4 rounded-xl bg-surface-container-low border border-outline-variant/80 font-code-md text-on-surface text-[12px] whitespace-pre-wrap leading-relaxed shadow-inner">
               {resume.raw_text || 'No raw text extracted.'}
@@ -251,7 +274,7 @@ export default function ResumeDetailModal({ resume, onClose }) {
           )}
         </div>
 
-        {/* Modal Footer */}
+        {/* ── Footer ── */}
         <div className="p-4 border-t border-outline-variant/70 bg-surface-container-low/40 flex justify-end">
           <button
             type="button"

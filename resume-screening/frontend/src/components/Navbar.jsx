@@ -23,6 +23,15 @@ export default function Navbar({ activeTab, setActiveTab }) {
     return () => clearInterval(interval)
   }, [])
 
+  const navItems = [
+    { id: 'resumes',   icon: 'task_alt',    label: 'Resumes & Parsing' },
+    { id: 'jds',       icon: 'work',        label: 'Job Descriptions' },
+    { id: 'rankings',  icon: 'leaderboard', label: 'Rankings' },
+    { id: 'fairness',  icon: 'balance',     label: 'Fairness Audit' },
+    { id: 'dashboard', icon: 'query_stats', label: 'Dashboard' },
+    { id: 'pipeline',  icon: 'hub',         label: 'Architecture' },
+  ]
+
   return (
     <header className="docked full-width top-0 sticky z-50 bg-surface/90 border-b border-outline-variant/60 flex justify-between items-center w-full px-margin-desktop h-16 transition-all duration-150 backdrop-blur-md">
       {/* Brand / Phase Indicator */}
@@ -34,68 +43,32 @@ export default function Navbar({ activeTab, setActiveTab }) {
           <div className="flex items-center gap-2">
             <span className="text-title-lg font-title-lg font-bold tracking-tight text-on-surface">ResumeAI</span>
             <span className="text-label-sm font-label-sm px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant border border-outline-variant/80">
-              PHASE 1
+              PHASE 2
             </span>
           </div>
           <p className="text-label-md font-label-md text-on-surface-variant leading-none">
-            Smart Screening &amp; NER Extraction
+            Semantic Ranking &amp; Fairness Audit
           </p>
         </div>
       </div>
 
       {/* Centered Navigation Cluster */}
-      <nav className="hidden md:flex items-center gap-8 h-full pt-4">
-        <button
-          type="button"
-          onClick={() => setActiveTab('resumes')}
-          className={`${
-            activeTab === 'resumes'
-              ? 'text-primary border-b-2 border-primary font-semibold'
-              : 'text-on-surface-variant hover:text-on-surface transition-colors'
-          } pb-4 flex items-center gap-2 bg-transparent border-0 cursor-pointer`}
-        >
-          <span className="material-symbols-outlined text-[18px]">task_alt</span>
-          <span className="text-label-md font-label-md">Resumes &amp; Parsing</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('jds')}
-          className={`${
-            activeTab === 'jds'
-              ? 'text-primary border-b-2 border-primary font-semibold'
-              : 'text-on-surface-variant hover:text-on-surface transition-colors'
-          } pb-4 flex items-center gap-2 bg-transparent border-0 cursor-pointer`}
-        >
-          <span className="material-symbols-outlined text-[18px]">work</span>
-          <span className="text-label-md font-label-md">Job Descriptions</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('dashboard')}
-          className={`${
-            activeTab === 'dashboard'
-              ? 'text-primary border-b-2 border-primary font-semibold'
-              : 'text-on-surface-variant hover:text-on-surface transition-colors'
-          } pb-4 flex items-center gap-2 bg-transparent border-0 cursor-pointer`}
-        >
-          <span className="material-symbols-outlined text-[18px]">query_stats</span>
-          <span className="text-label-md font-label-md">Dashboard &amp; KPIs</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('pipeline')}
-          className={`${
-            activeTab === 'pipeline'
-              ? 'text-primary border-b-2 border-primary font-semibold'
-              : 'text-on-surface-variant hover:text-on-surface transition-colors'
-          } pb-4 flex items-center gap-2 bg-transparent border-0 cursor-pointer`}
-        >
-          <span className="material-symbols-outlined text-[18px]">hub</span>
-          <span className="text-label-md font-label-md">System Architecture</span>
-        </button>
+      <nav className="hidden md:flex items-center gap-6 h-full pt-4">
+        {navItems.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => setActiveTab(item.id)}
+            className={`${
+              activeTab === item.id
+                ? 'text-primary border-b-2 border-primary font-semibold'
+                : 'text-on-surface-variant hover:text-on-surface transition-colors'
+            } pb-4 flex items-center gap-1.5 bg-transparent border-0 cursor-pointer text-xs`}
+          >
+            <span className="material-symbols-outlined text-[17px]">{item.icon}</span>
+            <span className="font-label-md">{item.label}</span>
+          </button>
+        ))}
       </nav>
 
       {/* Trailing Actions & System Health */}
@@ -107,19 +80,19 @@ export default function Navbar({ activeTab, setActiveTab }) {
               className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
                 health.status === 'ok' ? 'bg-emerald-500' : health.status === 'checking' ? 'bg-amber-500' : 'bg-red-500'
               }`}
-            ></span>
+            />
             <span
               className={`relative inline-flex rounded-full h-2 w-2 ${
                 health.status === 'ok' ? 'bg-emerald-600' : health.status === 'checking' ? 'bg-amber-600' : 'bg-red-600'
               }`}
-            ></span>
+            />
           </span>
           <span className="text-on-surface font-medium">
             {health.status === 'ok' ? 'API Online' : health.status === 'checking' ? 'Connecting...' : 'API Offline'}
           </span>
           <span className="text-outline-variant">|</span>
           <span className="text-on-surface-variant text-label-sm font-label-sm">
-            MongoDB: {health.db === 'connected' ? 'Connected' : health.db === 'checking' ? 'Checking...' : 'Disconnected'}
+            DB: {health.db === 'connected' ? 'OK' : '✗'}
           </span>
         </div>
 

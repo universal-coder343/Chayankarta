@@ -1,6 +1,5 @@
-version: "3.9"
-
 services:
+  # ── Backend API ─────────────────────────────────────────────────────────
   api:
     build:
       context: ./backend
@@ -12,13 +11,46 @@ services:
       - ./backend/.env
     environment:
       - MONGODB_URL=mongodb://mongo:27017
+      # Milestone 4 — Semantic Ranking (override defaults here if needed)
+      - EMBEDDING_MODEL=all-MiniLM-L6-v2
+      - WEIGHT_SEMANTIC=0.40
+      - WEIGHT_SKILL=0.35
+      - WEIGHT_EXPERIENCE=0.15
+      - WEIGHT_EDUCATION=0.10
+      # Milestone 5 — Fairness & PII Redaction
+      - ENABLE_REDACTION=true
+      - REDACT_INSTITUTIONS=false
+      # Tell HuggingFace to use cached models only (avoids DNS retries on startup)
+      - TRANSFORMERS_OFFLINE=1
+      - HF_DATASETS_OFFLINE=1
     volumes:
       - ./backend:/app
       - upload_data:/app/uploads
+      # Cache the HuggingFace model downloads between container restarts
+      - hf_cache:/root/.cache/huggingface
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
     restart: unless-stopped
 
+  # ── Frontend (Vite dev server) ───────────────────────────────────────────
+  frontend:
+    image: node:20-alpine
+    container_name: resume-frontend
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  # ── MongoDB ─────────────────────────────────────────────────────────────
   mongo:
     image: mongo:7
     container_name: resume-mongo
@@ -27,7 +59,13 @@ services:
     volumes:
       - mongo_data:/data/db
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   mongo_data:
   upload_data:
+  hf_cache:      # persistent HuggingFace model cache (avoids re-download)

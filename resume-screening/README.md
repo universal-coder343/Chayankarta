@@ -10,17 +10,46 @@ AI-powered resume screening with semantic ranking, PII redaction, and fairness a
 ```
 Frontend (React 19 + Vite + Tailwind)
     ↕ REST API
-Backend (FastAPI 0.2, Python 3.11+)
-    ├── Parsing   : pdfplumber / python-docx / Tesseract OCR
+Backend (FastAPI, Python 3.11)
+    ├── Parsing   : pdfplumber / python-docx / Tesseract OCR (image + scanned PDF)
     ├── NLP       : spaCy en_core_web_sm + PhraseMatcher (1000+ skills)
     ├── Ranking   : sentence-transformers (all-MiniLM-L6-v2), hybrid scorer
     ├── Fairness  : PII redactor + disparate impact analysis
-    └── DB        : MongoDB (Motor async driver)
+    └── DB        : MongoDB 7 (Motor async driver)
+Infrastructure
+    └── Docker Compose (api + frontend + mongo)
 ```
 
 ---
 
-## Quick Start
+## Quick Start — Docker (Recommended)
+
+> **Requires Docker Desktop 4.x+ with the Linux engine running.**
+
+```bash
+cd resume-screening
+
+# Build and start all services
+docker compose up --build
+
+# Detached (background)
+docker compose up --build -d
+```
+
+| Service   | URL                        |
+|-----------|----------------------------|
+| API       | http://localhost:8000      |
+| Swagger   | http://localhost:8000/docs |
+| Frontend  | http://localhost:5173      |
+| MongoDB   | localhost:27017            |
+
+> **First start:** The HuggingFace embedding model (`all-MiniLM-L6-v2`, ~90 MB) is
+> downloaded once and cached in the `hf_cache` Docker volume. Subsequent starts use
+> the local cache instantly (`TRANSFORMERS_OFFLINE=1` is set).
+
+---
+
+## Quick Start — Local (Without Docker)
 
 ### 1. Backend
 
@@ -78,16 +107,18 @@ python scripts/seed_data.py --url http://localhost:8000
 | `WEIGHT_EDUCATION` | `0.10` | Education match weight |
 | `ENABLE_REDACTION` | `true` | Enable PII redaction before scoring |
 | `REDACT_INSTITUTIONS` | `false` | Also redact college/university names |
+| `TRANSFORMERS_OFFLINE` | `1` | Use cached HF model only (no network) |
+| `HF_DATASETS_OFFLINE` | `1` | Use cached HF datasets only (no network) |
 
 ---
 
 ## API Endpoints
 
-### Phase 1 (Parsing & NER)
+### Resume & Job Description (Phase 1)
 
 | Method | Path | Description |
 |---|---|---|
-| `POST` | `/api/resumes/upload` | Upload a resume (PDF/DOCX/image) |
+| `POST` | `/api/resumes/upload` | Upload a resume (PDF / DOCX / image) |
 | `GET` | `/api/resumes/` | List all resumes (paginated) |
 | `GET` | `/api/resumes/{id}` | Get single resume |
 | `DELETE` | `/api/resumes/{id}` | Delete resume |
@@ -96,7 +127,7 @@ python scripts/seed_data.py --url http://localhost:8000
 | `GET` | `/api/jds/{id}` | Get single JD |
 | `DELETE` | `/api/jds/{id}` | Delete JD |
 
-### Milestone 4 — Semantic Ranking
+### Semantic Ranking (Milestone 4)
 
 | Method | Path | Description |
 |---|---|---|
@@ -140,7 +171,7 @@ python scripts/seed_data.py --url http://localhost:8000
 }
 ```
 
-### Milestone 5 — Fairness & Audit
+### Fairness & Audit (Milestone 5)
 
 | Method | Path | Description |
 |---|---|---|
@@ -175,8 +206,28 @@ Weights are configurable via `WEIGHT_*` environment variables or per-request in 
 
 ---
 
+## OCR — Image & Scanned PDF Support
+
+Resumes uploaded as images (JPG, PNG, TIFF) or scanned PDFs are processed with
+Tesseract OCR. The pipeline applies the following preprocessing for accuracy:
+
+1. **Transparency flattening** — RGBA/PNG images are pasted on a white background
+2. **Grayscale conversion**
+3. **Upscaling** — images narrower than 1800 px are resized with LANCZOS
+4. **Sharpening** — `ImageFilter.SHARPEN`
+5. **Contrast boost** — `ImageEnhance.Contrast(2.0)`
+6. **Noise reduction** — `ImageFilter.MedianFilter(size=3)`
+7. **Tesseract config** — `--oem 3 --psm 6 -l eng` (LSTM engine, uniform text block, English)
+
+> **Tip:** For best extraction quality, upload resumes as **PDF** (text-based) or **DOCX**.
+> Image OCR is inherently less accurate on low-quality scans.
+
+---
+
 ## Fairness Method (Milestone 5)
+
 ### PII Redaction
+
 Before embedding/scoring, the following are redacted from resume text:
 
 | Category | Replacement |
@@ -194,7 +245,7 @@ Before embedding/scoring, the following are redacted from resume text:
 | Location (spaCy GPE) | `[LOCATION]` |
 | Institution names *(optional)* | `[INSTITUTION]` |
 
-The **original text is preserved** in MongoDB; only the redacted copy is used for embedding.  
+The **original text is preserved** in MongoDB; only the redacted copy is used for embedding.
 Toggle with `ENABLE_REDACTION=true/false`. Redact institutions with `REDACT_INSTITUTIONS=true`.
 
 ### Disparate Impact Analysis
@@ -208,7 +259,7 @@ Groups are inferred from **proxy signals** in raw text (before redaction):
 Metrics per group:
 - `count`, `mean_score`, `std_score`, `selection_rate` (fraction above threshold)
 
-**Disparate Impact Ratio** = min(selection_rate) / max(selection_rate)  
+**Disparate Impact Ratio** = min(selection_rate) / max(selection_rate)
 Values ≥ 0.80 pass the EEOC **4/5 rule**.
 
 **Score delta** = mean |redacted_score − raw_score| — quantifies how much redaction changed ranking.
@@ -232,16 +283,38 @@ python -m pytest -v
 
 ---
 
+## Docker Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| `500 Internal Server Error` on `/_ping` | Docker Desktop engine crashed — restart Docker Desktop or run `wsl --shutdown` then relaunch |
+| `docker-desktop` WSL distro not found | Docker is using the Virtualization Framework backend (not WSL2) — use **Settings → Troubleshoot → Reset to factory defaults** |
+| VM disk I/O errors in `vm/init.log` | Virtual disk corrupted — factory reset required |
+| HuggingFace DNS warnings on startup | Normal on first boot; model loads from cache after retry. Set `TRANSFORMERS_OFFLINE=1` to skip network entirely |
+| `pip install` exit code 2 | Install torch CPU wheel before `sentence-transformers` — handled in Dockerfile automatically |
+
+---
+
 ## Known Limitations & Design Notes
 
-1. **Group inference uses proxies, not ground truth.** Gender is inferred from pronouns, not self-reported data. Results should be treated as indicative, not definitive.
+1. **Group inference uses proxies, not ground truth.** Gender is inferred from pronouns,
+   not self-reported data. Results should be treated as indicative, not definitive.
 
-2. **Embedding model is loaded at startup.** First startup takes ~5–10s to download `all-MiniLM-L6-v2` (~90MB). Subsequent starts use the local cache.
+2. **Embedding model is loaded at startup.** First startup downloads `all-MiniLM-L6-v2`
+   (~90 MB) into the `hf_cache` volume. Subsequent starts use cache instantly.
 
-3. **Redaction is pre-embedding only.** NER data (name, email) already stored in MongoDB is **not** modified — only the text fed to the embedding model is redacted. The `ner.name` field is still used for display in the rankings UI.
+3. **Redaction is pre-embedding only.** NER data (name, email) already stored in MongoDB
+   is **not** modified — only the text fed to the embedding model is redacted.
+   The `ner.name` field is still used for display in the rankings UI.
 
-4. **Experience extraction is text-regex-based.** It extracts the *maximum* year figure from raw text. Multi-role experience timelines are not yet summed.
+4. **Experience extraction is text-regex-based.** Extracts the maximum year figure from
+   raw text. Multi-role experience timelines are not yet summed.
 
-5. **Fairness audit is not a legal compliance tool.** It is a transparency/monitoring instrument for developers and recruiters. Always involve a qualified HR professional for hiring decisions.
+5. **Fairness audit is not a legal compliance tool.** It is a transparency/monitoring
+   instrument for developers and recruiters. Always involve a qualified HR professional
+   for hiring decisions.
 
-6. **Docker Compose** support is planned for Phase 3. The existing `docker-compose.yml` runs Phase 1 only.
+6. **OneDrive + Git conflict.** If your project lives inside OneDrive, run all `git`
+   commands in your own terminal (not via an IDE shell) to avoid `index.lock` permission
+   errors caused by OneDrive's real-time sync. Consider excluding the `.git` folder from
+   OneDrive sync.

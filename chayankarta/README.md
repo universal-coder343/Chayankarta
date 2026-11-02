@@ -1,5 +1,5 @@
-# Smart Resume Screening & Candidate Ranking System
-**MITS Gwalior — Cornerstone Project 2026-27**
+﻿# Chayankarta · चयनकर्ता — AI Candidate Ranking System
+**MITS Gwalior â€” Cornerstone Project 2026-27**
 
 AI-powered resume screening with semantic ranking, PII redaction, and fairness auditing.
 
@@ -9,25 +9,25 @@ AI-powered resume screening with semantic ranking, PII redaction, and fairness a
 
 ```
 Frontend (React 19 + Vite + Tailwind)
-    ↕ REST API
+    â†• REST API
 Backend (FastAPI, Python 3.11)
-    ├── Parsing   : pdfplumber / python-docx / Tesseract OCR (image + scanned PDF)
-    ├── NLP       : spaCy en_core_web_sm + PhraseMatcher (1000+ skills)
-    ├── Ranking   : sentence-transformers (all-MiniLM-L6-v2), hybrid scorer
-    ├── Fairness  : PII redactor + disparate impact analysis
-    └── DB        : MongoDB 7 (Motor async driver)
+    â”œâ”€â”€ Parsing   : pdfplumber / python-docx / Tesseract OCR (image + scanned PDF)
+    â”œâ”€â”€ NLP       : spaCy en_core_web_sm + PhraseMatcher (1000+ skills)
+    â”œâ”€â”€ Ranking   : sentence-transformers (all-MiniLM-L6-v2), hybrid scorer
+    â”œâ”€â”€ Fairness  : PII redactor + disparate impact analysis
+    â””â”€â”€ DB        : MongoDB 7 (Motor async driver)
 Infrastructure
-    └── Docker Compose (api + frontend + mongo)
+    â””â”€â”€ Docker Compose (api + frontend + mongo)
 ```
 
 ---
 
-## Quick Start — Docker (Recommended)
+## Quick Start â€” Docker (Recommended)
 
 > **Requires Docker Desktop 4.x+ with the Linux engine running.**
 
 ```bash
-cd resume-screening
+cd chayankarta
 
 # Build and start all services
 docker compose up --build
@@ -49,12 +49,12 @@ docker compose up --build -d
 
 ---
 
-## Quick Start — Local (Without Docker)
+## Quick Start â€” Local (Without Docker)
 
 ### 1. Backend
 
 ```bash
-cd resume-screening/backend
+cd chayankarta/backend
 
 # Install dependencies
 pip install -r requirements.txt
@@ -72,9 +72,9 @@ uvicorn app.main:app --reload --port 8000
 ### 2. Frontend
 
 ```bash
-cd resume-screening/frontend
+cd chayankarta/frontend
 npm install
-npm run dev        # → http://localhost:5173
+npm run dev        # â†’ http://localhost:5173
 ```
 
 ### 3. Seed Demo Data
@@ -96,7 +96,7 @@ python scripts/seed_data.py --url http://localhost:8000
 | Variable | Default | Description |
 |---|---|---|
 | `MONGODB_URL` | `mongodb://localhost:27017` | MongoDB connection string |
-| `DATABASE_NAME` | `resume_screening` | Database name |
+| `DATABASE_NAME` | `chayankarta` | Database name |
 | `CORS_ORIGINS` | `["http://localhost:5173"]` | Allowed frontend origins |
 | `LOG_LEVEL` | `INFO` | Logging level |
 | `UPLOAD_DIR` | `./uploads` | Directory for uploaded files |
@@ -182,14 +182,14 @@ python scripts/seed_data.py --url http://localhost:8000
 
 ## Scoring Formula
 
-The hybrid score (0–100) is a weighted combination of four components:
+The hybrid score (0â€“100) is a weighted combination of four components:
 
 ```
-final_score = 100 × (
-    0.40 × semantic_similarity   +
-    0.35 × skill_overlap          +
-    0.15 × experience_match       +
-    0.10 × education_match
+final_score = 100 Ã— (
+    0.40 Ã— semantic_similarity   +
+    0.35 Ã— skill_overlap          +
+    0.15 Ã— experience_match       +
+    0.10 Ã— education_match
 )
 ```
 
@@ -198,26 +198,26 @@ final_score = 100 × (
 | Component | Method | Notes |
 |---|---|---|
 | **Semantic similarity** | Cosine similarity of `all-MiniLM-L6-v2` embeddings | L2-normalized; range [0,1] |
-| **Skill overlap** | `(2 × req_matched + pref_matched) / (2 × req_total + pref_total)` | Required skills weighted 2× preferred |
+| **Skill overlap** | `(2 Ã— req_matched + pref_matched) / (2 Ã— req_total + pref_total)` | Required skills weighted 2Ã— preferred |
 | **Experience match** | `min(1.0, candidate_years / required_years)` | 0.5 if years unknown |
-| **Education match** | Candidate level ÷ required level (5-point scale) | Full score if no requirement |
+| **Education match** | Candidate level Ã· required level (5-point scale) | Full score if no requirement |
 
 Weights are configurable via `WEIGHT_*` environment variables or per-request in the API body.
 
 ---
 
-## OCR — Image & Scanned PDF Support
+## OCR â€” Image & Scanned PDF Support
 
 Resumes uploaded as images (JPG, PNG, TIFF) or scanned PDFs are processed with
 Tesseract OCR. The pipeline applies the following preprocessing for accuracy:
 
-1. **Transparency flattening** — RGBA/PNG images are pasted on a white background
+1. **Transparency flattening** â€” RGBA/PNG images are pasted on a white background
 2. **Grayscale conversion**
-3. **Upscaling** — images narrower than 1800 px are resized with LANCZOS
-4. **Sharpening** — `ImageFilter.SHARPEN`
-5. **Contrast boost** — `ImageEnhance.Contrast(2.0)`
-6. **Noise reduction** — `ImageFilter.MedianFilter(size=3)`
-7. **Tesseract config** — `--oem 3 --psm 6 -l eng` (LSTM engine, uniform text block, English)
+3. **Upscaling** â€” images narrower than 1800 px are resized with LANCZOS
+4. **Sharpening** â€” `ImageFilter.SHARPEN`
+5. **Contrast boost** â€” `ImageEnhance.Contrast(2.0)`
+6. **Noise reduction** â€” `ImageFilter.MedianFilter(size=3)`
+7. **Tesseract config** â€” `--oem 3 --psm 6 -l eng` (LSTM engine, uniform text block, English)
 
 > **Tip:** For best extraction quality, upload resumes as **PDF** (text-based) or **DOCX**.
 > Image OCR is inherently less accurate on low-quality scans.
@@ -260,18 +260,18 @@ Metrics per group:
 - `count`, `mean_score`, `std_score`, `selection_rate` (fraction above threshold)
 
 **Disparate Impact Ratio** = min(selection_rate) / max(selection_rate)
-Values ≥ 0.80 pass the EEOC **4/5 rule**.
+Values â‰¥ 0.80 pass the EEOC **4/5 rule**.
 
-**Score delta** = mean |redacted_score − raw_score| — quantifies how much redaction changed ranking.
+**Score delta** = mean |redacted_score âˆ’ raw_score| â€” quantifies how much redaction changed ranking.
 
 ---
 
 ## Running Tests
 
 ```bash
-cd resume-screening/backend
+cd chayankarta/backend
 
-# Unit tests (no DB, no model needed — uses mocks)
+# Unit tests (no DB, no model needed â€” uses mocks)
 python -m pytest tests/test_embedder.py tests/test_scorer.py tests/test_redactor.py -v
 
 # Endpoint tests
@@ -287,11 +287,11 @@ python -m pytest -v
 
 | Symptom | Fix |
 |---|---|
-| `500 Internal Server Error` on `/_ping` | Docker Desktop engine crashed — restart Docker Desktop or run `wsl --shutdown` then relaunch |
-| `docker-desktop` WSL distro not found | Docker is using the Virtualization Framework backend (not WSL2) — use **Settings → Troubleshoot → Reset to factory defaults** |
-| VM disk I/O errors in `vm/init.log` | Virtual disk corrupted — factory reset required |
+| `500 Internal Server Error` on `/_ping` | Docker Desktop engine crashed â€” restart Docker Desktop or run `wsl --shutdown` then relaunch |
+| `docker-desktop` WSL distro not found | Docker is using the Virtualization Framework backend (not WSL2) â€” use **Settings â†’ Troubleshoot â†’ Reset to factory defaults** |
+| VM disk I/O errors in `vm/init.log` | Virtual disk corrupted â€” factory reset required |
 | HuggingFace DNS warnings on startup | Normal on first boot; model loads from cache after retry. Set `TRANSFORMERS_OFFLINE=1` to skip network entirely |
-| `pip install` exit code 2 | Install torch CPU wheel before `sentence-transformers` — handled in Dockerfile automatically |
+| `pip install` exit code 2 | Install torch CPU wheel before `sentence-transformers` â€” handled in Dockerfile automatically |
 
 ---
 
@@ -304,7 +304,7 @@ python -m pytest -v
    (~90 MB) into the `hf_cache` volume. Subsequent starts use cache instantly.
 
 3. **Redaction is pre-embedding only.** NER data (name, email) already stored in MongoDB
-   is **not** modified — only the text fed to the embedding model is redacted.
+   is **not** modified â€” only the text fed to the embedding model is redacted.
    The `ner.name` field is still used for display in the rankings UI.
 
 4. **Experience extraction is text-regex-based.** Extracts the maximum year figure from

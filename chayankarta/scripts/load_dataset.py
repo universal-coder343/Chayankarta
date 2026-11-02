@@ -1,4 +1,4 @@
-"""
+﻿"""
 Load the Kaggle Resume Dataset CSV into MongoDB.
 
 Reads the CSV, cleans it, runs NER extraction on each resume,
@@ -12,7 +12,7 @@ Prerequisites:
 Usage:
     python scripts/load_dataset.py [--csv-path data/raw/Resume/Resume.csv]
                                    [--mongodb-url mongodb://localhost:27017]
-                                   [--db-name resume_screening]
+                                   [--db-name chayankarta]
                                    [--batch-size 50]
 """
 
@@ -62,7 +62,7 @@ def clean_text(text: str) -> str:
 def load_dataset(
     csv_path: str = "data/raw/Resume/Resume.csv",
     mongodb_url: str = "mongodb://localhost:27017",
-    db_name: str = "resume_screening",
+    db_name: str = "chayankarta",
     batch_size: int = 50,
 ) -> None:
     """Load the resume CSV into MongoDB with NER extraction."""
@@ -158,7 +158,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Load Kaggle Resume Dataset into MongoDB")
     parser.add_argument("--csv-path", default="data/raw/Resume/Resume.csv", help="Path to CSV")
     parser.add_argument("--mongodb-url", default="mongodb://localhost:27017", help="MongoDB URL")
-    parser.add_argument("--db-name", default="resume_screening", help="Database name")
+    parser.add_argument("--db-name", default="chayankarta", help="Database name")
     parser.add_argument("--batch-size", type=int, default=50, help="Progress log interval")
     args = parser.parse_args()
 

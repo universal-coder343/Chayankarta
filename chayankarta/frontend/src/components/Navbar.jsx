@@ -41,13 +41,13 @@ export default function Navbar({ activeTab, setActiveTab }) {
         </div>
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-title-lg font-title-lg font-bold tracking-tight text-on-surface">ResumeAI</span>
+            <span className="text-title-lg font-title-lg font-bold tracking-tight text-on-surface">Chayankarta</span>
             <span className="text-label-sm font-label-sm px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant border border-outline-variant/80">
               PHASE 2
             </span>
           </div>
           <p className="text-label-md font-label-md text-on-surface-variant leading-none">
-            Semantic Ranking &amp; Fairness Audit
+            चयनकर्ता · AI Candidate Ranking
           </p>
         </div>
       </div>

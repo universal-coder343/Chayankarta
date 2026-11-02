@@ -13,7 +13,7 @@ class Settings(BaseSettings):
 
     # MongoDB
     mongodb_url: str = "mongodb://localhost:27017"
-    database_name: str = "resume_screening"
+    database_name: str = "chayankarta"
 
     # CORS
     cors_origins: str = '["http://localhost:5173"]'

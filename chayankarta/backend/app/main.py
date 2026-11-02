@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     """Manage startup and shutdown tasks."""
     # ---- Startup ----
-    logger.info("Starting up Smart Resume Screening API (Phase 2) ...")
+    logger.info("Starting up Chayankarta API (Phase 2) ...")
 
     # Ensure upload directory exists
     os.makedirs(settings.upload_dir, exist_ok=True)
@@ -80,10 +80,10 @@ async def lifespan(app: FastAPI):
 # FastAPI app
 # ---------------------------------------------------------------------------
 app = FastAPI(
-    title="Smart Resume Screening API",
+    title="Chayankarta API",
     description=(
-        "AI-powered resume screening and candidate ranking system — "
-        "Phase 2: Semantic Ranking + Fairness Audit"
+        "Chayankarta — AI-powered candidate screening and ranking. "
+        "चयनकर्ता · Phase 2: Semantic Ranking + Fairness Audit"
     ),
     version="0.2.0",
     lifespan=lifespan,

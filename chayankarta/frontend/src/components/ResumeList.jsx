@@ -74,7 +74,7 @@ export default function ResumeList({
     const encodedUri = encodeURI(csvContent)
     const link = document.createElement('a')
     link.setAttribute('href', encodedUri)
-    link.setAttribute('download', `resume_screening_export_${Date.now()}.csv`)
+    link.setAttribute('download', `chayankarta_export_${Date.now()}.csv`)
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)

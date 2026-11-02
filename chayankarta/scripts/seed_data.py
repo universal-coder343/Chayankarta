@@ -1,5 +1,5 @@
-"""
-Seed data script — Milestone 4 & 5 demo.
+﻿"""
+Seed data script â€” Milestone 4 & 5 demo.
 
 Creates 10 sample resumes and 3 sample JDs via the REST API,
 suitable for demoing semantic ranking and fairness audit.
@@ -7,7 +7,7 @@ suitable for demoing semantic ranking and fairness audit.
 Usage
 -----
     # Start the backend first:
-    cd resume-screening/backend
+    cd chayankarta/backend
     uvicorn app.main:app --reload
 
     # Then in another terminal:
@@ -37,7 +37,7 @@ JOB_DESCRIPTIONS = [
         "title": "Senior Python Backend Engineer",
         "company": "TechCorp India",
         "raw_text": """
-Senior Python Backend Engineer — TechCorp India
+Senior Python Backend Engineer â€” TechCorp India
 
 We are looking for a Senior Python Backend Engineer to join our growing team.
 
@@ -66,7 +66,7 @@ Responsibilities:
         "title": "Machine Learning Engineer",
         "company": "DataDrive Solutions",
         "raw_text": """
-Machine Learning Engineer — DataDrive Solutions
+Machine Learning Engineer â€” DataDrive Solutions
 
 Join our AI team to build production ML systems.
 
@@ -94,7 +94,7 @@ What you'll do:
         "title": "Full-Stack Developer (React + Node.js)",
         "company": "WebStart Startup",
         "raw_text": """
-Full-Stack Developer — WebStart Startup
+Full-Stack Developer â€” WebStart Startup
 
 We need a versatile full-stack developer to build our SaaS product.
 
@@ -139,17 +139,17 @@ Python, FastAPI, Django, PostgreSQL, MongoDB, Docker, Kubernetes, Redis,
 AWS, CI/CD, GitHub Actions, REST APIs, Microservices, Git, Linux
 
 EXPERIENCE
-Senior Backend Engineer — MegaTech Pvt Ltd (2020–Present)
+Senior Backend Engineer â€” MegaTech Pvt Ltd (2020â€“Present)
 - Built microservices with FastAPI serving 10M+ requests/day
 - Managed PostgreSQL clusters and MongoDB Atlas
 - Led Docker/Kubernetes migration reducing infra costs by 30%
 
-Backend Engineer — StartupXYZ (2017–2020)
+Backend Engineer â€” StartupXYZ (2017â€“2020)
 - Developed Django REST APIs for e-commerce platform
 - Implemented CI/CD pipelines with Jenkins
 
 EDUCATION
-B.Tech in Computer Science — IIT Bombay, 2017
+B.Tech in Computer Science â€” IIT Bombay, 2017
 
 CERTIFICATIONS
 AWS Certified Solutions Architect
@@ -169,16 +169,16 @@ Python, TensorFlow, PyTorch, scikit-learn, spaCy, Transformers, BERT, NLP,
 SQL, MongoDB, Docker, AWS SageMaker, MLflow, Pandas, NumPy, Jupyter
 
 EXPERIENCE
-ML Engineer — AI Labs India (2021–Present)
+ML Engineer â€” AI Labs India (2021â€“Present)
 - Built production NLP pipelines for text classification (BERT fine-tuning)
 - Deployed models on AWS SageMaker with 99.5% uptime
 - Used MLflow for experiment tracking
 
-Data Scientist — Analytics Corp (2020–2021)
+Data Scientist â€” Analytics Corp (2020â€“2021)
 - Developed recommendation engine using collaborative filtering
 
 EDUCATION
-M.Tech in Data Science — IIT Delhi, 2020
+M.Tech in Data Science â€” IIT Delhi, 2020
 
 CERTIFICATIONS
 Google Professional ML Engineer
@@ -198,19 +198,19 @@ JavaScript, TypeScript, React, Next.js, Node.js, Express, PostgreSQL,
 MongoDB, REST APIs, Git, Docker, Jest, Tailwind CSS, Vite
 
 EXPERIENCE
-Full-Stack Developer — WebDev Agency (2022–Present)
+Full-Stack Developer â€” WebDev Agency (2022â€“Present)
 - Built React + Next.js applications for 5+ clients
 - Developed Node.js REST APIs with PostgreSQL backend
 - Containerized applications with Docker
 
-Junior Developer — FreelanceProjects (2021–2022)
+Junior Developer â€” FreelanceProjects (2021â€“2022)
 - React and JavaScript web development
 
 EDUCATION
-B.E. in Information Technology — Mumbai University, 2021
+B.E. in Information Technology â€” Mumbai University, 2021
 """,
     },
-    # Moderate match — Python developer, less experience
+    # Moderate match â€” Python developer, less experience
     {
         "filename": "neha_joshi_python.pdf",
         "text": """Neha Joshi
@@ -223,15 +223,15 @@ SKILLS
 Python, Django, MySQL, HTML, CSS, JavaScript, Git, Linux, REST APIs
 
 EXPERIENCE
-Software Developer — SoftSolutions (2022–Present)
+Software Developer â€” SoftSolutions (2022â€“Present)
 - Developed Django web applications
 - Managed MySQL databases and wrote SQL queries
 
-Intern — TechIntern Co (2021)
+Intern â€” TechIntern Co (2021)
 - Assisted in Python script development
 
 EDUCATION
-B.Sc. Computer Science — Pune University, 2022
+B.Sc. Computer Science â€” Pune University, 2022
 """,
     },
     # Weak match for Backend JD (different domain)
@@ -248,16 +248,16 @@ Excel, PowerPoint, SQL, Bloomberg, Financial Modelling, SAP, VBA,
 Tableau, Python (basic), Data Analysis
 
 EXPERIENCE
-Financial Analyst — Global Bank Ltd (2019–Present)
+Financial Analyst â€” Global Bank Ltd (2019â€“Present)
 - Built financial models in Excel and VBA
 - Prepared quarterly reports for senior management
 
-Junior Analyst — FinCorp India (2018–2019)
+Junior Analyst â€” FinCorp India (2018â€“2019)
 - Data entry and basic SQL reporting
 
 EDUCATION
-MBA (Finance) — Delhi University, 2018
-Bachelor's in Commerce — Delhi University, 2016
+MBA (Finance) â€” Delhi University, 2018
+Bachelor's in Commerce â€” Delhi University, 2016
 """,
     },
     # Strong ML match, male-proxy name
@@ -275,16 +275,16 @@ Python, PyTorch, TensorFlow, Keras, scikit-learn, NLP, Transformers,
 Hugging Face, spaCy, SQL, Docker, Kubernetes, AWS, MLflow, FastAPI
 
 EXPERIENCE
-Senior ML Engineer — NeuroTech Labs (2021–Present)
+Senior ML Engineer â€” NeuroTech Labs (2021â€“Present)
 - Developed transformer-based NLP models (BERT, GPT fine-tuning)
 - Built ML pipelines with Kubeflow on GCP
 
-ML Research Engineer — AI Research Institute (2019–2021)
+ML Research Engineer â€” AI Research Institute (2019â€“2021)
 - Published papers on text classification and entity recognition
 - Contributed to open-source NLP libraries
 
 EDUCATION
-M.S. in Computer Science — IIT Madras, 2019
+M.S. in Computer Science â€” IIT Madras, 2019
 """,
     },
     # Good Full-Stack, female-proxy signals
@@ -302,16 +302,16 @@ JavaScript, TypeScript, React, Redux, Next.js, Vite, HTML5, CSS3,
 Tailwind CSS, Node.js, REST APIs, GraphQL, Git, Jest, Figma
 
 EXPERIENCE
-Frontend Developer — UITech Solutions (2021–Present)
+Frontend Developer â€” UITech Solutions (2021â€“Present)
 - Built responsive React SPAs used by 50K+ users
 - Implemented GraphQL client integrations
 - Mentored 2 junior developers
 
-Junior Frontend Developer — DesignStudio (2020–2021)
+Junior Frontend Developer â€” DesignStudio (2020â€“2021)
 - HTML/CSS/JavaScript development
 
 EDUCATION
-BCA — Gujarat University, 2020
+BCA â€” Gujarat University, 2020
 """,
     },
     # Mid-level, diverse background
@@ -328,16 +328,16 @@ Docker, Kubernetes, AWS, Terraform, Ansible, CI/CD, Jenkins, GitHub Actions,
 Linux, Bash, Python, Monitoring (Prometheus, Grafana), Nginx, PostgreSQL
 
 EXPERIENCE
-DevOps Engineer — CloudSystems India (2020–Present)
+DevOps Engineer â€” CloudSystems India (2020â€“Present)
 - Managed AWS infrastructure for 20+ microservices
 - Built Terraform IaC for multi-region deployments
 - Set up CI/CD pipelines with Jenkins and GitHub Actions
 
-System Administrator — IT Services Ltd (2019–2020)
+System Administrator â€” IT Services Ltd (2019â€“2020)
 - Linux server management and monitoring
 
 EDUCATION
-B.Tech — West Bengal University of Technology, 2019
+B.Tech â€” West Bengal University of Technology, 2019
 """,
     },
     # Senior, broad experience, matches backend JD well
@@ -355,17 +355,17 @@ Docker, Kubernetes, AWS, GCP, CI/CD, REST APIs, GraphQL, Microservices,
 System Design, Agile, Scrum
 
 EXPERIENCE
-Software Architect — Enterprise Software Co (2018–Present)
+Software Architect â€” Enterprise Software Co (2018â€“Present)
 - Designed distributed microservices handling 50M+ events/day
 - Led migration from monolith to Kubernetes microservices
 - Mentored team of 15 engineers
 
-Senior Engineer — ProductTech (2014–2018)
+Senior Engineer â€” ProductTech (2014â€“2018)
 - Built Python + Django backend for SaaS product
 - Implemented Kafka event streaming pipelines
 
 EDUCATION
-M.Tech — BITS Pilani, 2014
+M.Tech â€” BITS Pilani, 2014
 """,
     },
     # Entry-level fresh graduate
@@ -382,7 +382,7 @@ Python, JavaScript, React, HTML, CSS, SQL, Git, Data Structures, Algorithms,
 Machine Learning (coursework), Pandas, NumPy
 
 EXPERIENCE
-Intern — TechStartup Kerala (Jun–Aug 2024)
+Intern â€” TechStartup Kerala (Junâ€“Aug 2024)
 - Developed React components for internal dashboard
 - Wrote Python scripts for data processing
 
@@ -391,7 +391,7 @@ PROJECTS
 - College ERP: Full-stack web app using Django and React
 
 EDUCATION
-B.Tech in Computer Science — NIT Calicut, 2024 (CGPA: 8.7)
+B.Tech in Computer Science â€” NIT Calicut, 2024 (CGPA: 8.7)
 
 CERTIFICATIONS
 Google Data Analytics Certificate
@@ -460,7 +460,7 @@ def _upload_resume(base_url: str, filename: str, text: str) -> dict | None:
     except urllib.error.HTTPError as exc:
         body_resp = exc.read().decode()
         if exc.code == 409:
-            print(f"  ⚠  Resume '{filename}' already exists, skipping.")
+            print(f"  âš   Resume '{filename}' already exists, skipping.")
         else:
             print(f"  HTTP {exc.code}: {body_resp[:200]}")
         return None
@@ -471,7 +471,7 @@ def _upload_resume(base_url: str, filename: str, text: str) -> dict | None:
 # ---------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="Seed demo data for Resume Screening API")
+    parser = argparse.ArgumentParser(description="Seed demo data for Chayankarta API")
     parser.add_argument("--url", default=BASE_URL, help="Base URL of the API")
     parser.add_argument("--skip-resumes", action="store_true", help="Skip resume upload")
     parser.add_argument("--skip-jds", action="store_true", help="Skip JD creation")
@@ -480,48 +480,48 @@ def main():
     base = args.url.rstrip("/")
 
     # Check health
-    print(f"🔍 Checking API health at {base}/health ...")
+    print(f"ðŸ” Checking API health at {base}/health ...")
     health = _get(f"{base}/health")
     if not health or health.get("status") != "ok":
-        print(f"❌ API not healthy: {health}. Start the backend and try again.")
+        print(f"âŒ API not healthy: {health}. Start the backend and try again.")
         sys.exit(1)
-    print(f"✅ API is healthy. DB: {health.get('db')}")
+    print(f"âœ… API is healthy. DB: {health.get('db')}")
     print()
 
     # --- Create JDs ---
     jd_ids: list[str] = []
     if not args.skip_jds:
-        print("📋 Creating Job Descriptions ...")
+        print("ðŸ“‹ Creating Job Descriptions ...")
         for jd in JOB_DESCRIPTIONS:
-            print(f"  → {jd['title']} @ {jd['company']} ... ", end="", flush=True)
+            print(f"  â†’ {jd['title']} @ {jd['company']} ... ", end="", flush=True)
             result = _post(f"{base}/api/jds/", jd)
             if result.get("id"):
                 jd_ids.append(result["id"])
-                print(f"✅ id={result['id']}")
+                print(f"âœ… id={result['id']}")
             else:
-                print("⚠  skipped")
+                print("âš   skipped")
         print()
 
     # --- Upload resumes ---
     if not args.skip_resumes:
-        print("📄 Uploading sample resumes ...")
+        print("ðŸ“„ Uploading sample resumes ...")
         for r in RESUMES:
-            print(f"  → {r['filename']} ... ", end="", flush=True)
+            print(f"  â†’ {r['filename']} ... ", end="", flush=True)
             result = _upload_resume(base, r["filename"], r["text"])
             if result and result.get("id"):
-                print(f"✅ id={result['id']}")
+                print(f"âœ… id={result['id']}")
             time.sleep(0.2)  # small delay to avoid hammering
         print()
 
     # --- Backfill embeddings ---
-    print("🔢 Backfilling embeddings (this may take 30–60s on first run) ...")
+    print("ðŸ”¢ Backfilling embeddings (this may take 30â€“60s on first run) ...")
     result = _post(f"{base}/api/rankings/backfill", {})
     print(f"  Embedded: {result.get('embedded', '?')} documents")
     print()
 
     # --- Quick ranking demo ---
     if jd_ids:
-        print(f"🏆 Running ranking demo against JD id={jd_ids[0]} ...")
+        print(f"ðŸ† Running ranking demo against JD id={jd_ids[0]} ...")
         result = _get(f"{base}/api/rankings/?jd_id={jd_ids[0]}&top_k=5")
         rankings = result.get("rankings", [])
         if rankings:
@@ -535,15 +535,15 @@ def main():
         print()
 
         # --- Fairness audit demo ---
-        print("⚖  Running fairness audit ...")
+        print("âš–  Running fairness audit ...")
         audit = _get(f"{base}/api/audit/fairness?jd_id={jd_ids[0]}&threshold=50")
         print(f"  Total candidates: {audit.get('total_candidates', '?')}")
         print(f"  Disparate Impact Ratio: {audit.get('disparate_impact_ratio', 'N/A')}")
-        print(f"  4/5 Rule: {'PASS ✅' if audit.get('passes_four_fifths_rule') else 'FAIL ❌' if audit.get('passes_four_fifths_rule') is False else 'N/A'}")
+        print(f"  4/5 Rule: {'PASS âœ…' if audit.get('passes_four_fifths_rule') else 'FAIL âŒ' if audit.get('passes_four_fifths_rule') is False else 'N/A'}")
         print(f"  Summary: {audit.get('summary', '')}")
         print()
 
-    print("✨ Seed data complete!")
+    print("âœ¨ Seed data complete!")
 
 
 if __name__ == "__main__":

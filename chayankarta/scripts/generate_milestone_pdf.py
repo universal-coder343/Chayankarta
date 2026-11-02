@@ -1,4 +1,4 @@
-"""
+﻿"""
 Generate a professional Project Milestone & Roadmap PDF Report.
 Uses ReportLab with custom styling matching the project's aesthetic.
 """
@@ -50,7 +50,7 @@ class NumberedCanvas(canvas.Canvas):
             self.drawString(
                 54,
                 11 * 72 - 36,
-                "Smart Resume Screening and Candidate Ranking System Using AI — Milestone Report",
+                "Chayankarta - AI Candidate Ranking System â€” Milestone Report",
             )
             self.setStrokeColor(colors.HexColor("#dcc1b8"))
             self.setLineWidth(0.5)
@@ -62,7 +62,7 @@ class NumberedCanvas(canvas.Canvas):
         self.drawString(
             54,
             36,
-            "Confidential & Proprietary — College Capstone Project Milestone Documentation",
+            "Confidential & Proprietary â€” College Capstone Project Milestone Documentation",
         )
         self.setStrokeColor(colors.HexColor("#dcc1b8"))
         self.setLineWidth(0.5)
@@ -200,7 +200,7 @@ def build_pdf(filename="Milestone_Report_Phase_1.pdf"):
     story.append(Paragraph("PROJECT MILESTONE & ROADMAP REPORT", style_title))
     story.append(
         Paragraph(
-            "Smart Resume Screening & Candidate Ranking System Using AI — Phase 1 & Roadmap",
+            "Chayankarta - AI Candidate Ranking System â€” Phase 1 & Roadmap",
             style_subtitle,
         )
     )
@@ -210,7 +210,7 @@ def build_pdf(filename="Milestone_Report_Phase_1.pdf"):
     meta_data = [
         [
             Paragraph("<b>Project Phase:</b> Phase 1 Completed", style_table_cell),
-            Paragraph("<b>Target Scope:</b> Weeks 1–4 Delivered", style_table_cell),
+            Paragraph("<b>Target Scope:</b> Weeks 1â€“4 Delivered", style_table_cell),
             Paragraph(f"<b>Generated:</b> {now_str}", style_table_cell),
             Paragraph("<b>Status:</b> On Schedule (100% Phase 1)", style_table_cell),
         ]
@@ -238,13 +238,13 @@ def build_pdf(filename="Milestone_Report_Phase_1.pdf"):
     story.append(Paragraph("1. Executive Summary & Project Objectives", style_h1))
     story.append(
         Paragraph(
-            "The <b>Smart Resume Screening and Candidate Ranking System Using AI</b> is an intelligent, automated recruitment platform engineered to streamline talent acquisition. The end-to-end architecture ingests multi-format resumes, performs layout-preserving text extraction, identifies named entities and technical competencies via NLP, computes semantic embeddings using Sentence-BERT, calculates cosine similarity ranking against job descriptions, and applies algorithmic fairness audits to eliminate hiring biases.",
+            "The <b>Chayankarta (चयनकर्ता) — AI Candidate Ranking System</b> is an intelligent, automated recruitment platform engineered to streamline talent acquisition. The end-to-end architecture ingests multi-format resumes, performs layout-preserving text extraction, identifies named entities and technical competencies via NLP, computes semantic embeddings using Sentence-BERT, calculates cosine similarity ranking against job descriptions, and applies algorithmic fairness audits to eliminate hiring biases.",
             style_body,
         )
     )
     story.append(
         Paragraph(
-            "<b>Current Status:</b> Phase 1 (Weeks 1–4) has been <b>fully executed, tested, and verified</b>. The underlying microservice architecture, asynchronous persistence layer, hybrid OCR parsing pipeline, spaCy NER skills extractor, and responsive workstation UI are completely operational.",
+            "<b>Current Status:</b> Phase 1 (Weeks 1â€“4) has been <b>fully executed, tested, and verified</b>. The underlying microservice architecture, asynchronous persistence layer, hybrid OCR parsing pipeline, spaCy NER skills extractor, and responsive workstation UI are completely operational.",
             style_body,
         )
     )
@@ -295,7 +295,7 @@ def build_pdf(filename="Milestone_Report_Phase_1.pdf"):
     ]
 
     for title, desc in completed_items:
-        story.append(Paragraph(f"• <b>{title}:</b> {desc}", style_body))
+        story.append(Paragraph(f"â€¢ <b>{title}:</b> {desc}", style_body))
 
     story.append(Spacer(1, 10))
 
@@ -399,7 +399,7 @@ def build_pdf(filename="Milestone_Report_Phase_1.pdf"):
 
     roadmap_phases = [
         (
-            "Phase 2 (Weeks 5–7): Semantic Embeddings & Candidate Ranking Algorithm",
+            "Phase 2 (Weeks 5â€“7): Semantic Embeddings & Candidate Ranking Algorithm",
             [
                 "<b>Sentence-BERT Integration:</b> Load `sentence-transformers` (`all-MiniLM-L6-v2`) to compute 384-dimensional dense semantic vectors for both candidate profiles and job descriptions.",
                 "<b>Hybrid Similarity Model:</b> Implement cosine similarity matching combined with rule-based weighted scoring: <i>Score = w1*(Semantic Sim) + w2*(Must-Have Skills %) + w3*(Experience Fit %)</i>.",
@@ -408,7 +408,7 @@ def build_pdf(filename="Milestone_Report_Phase_1.pdf"):
             ],
         ),
         (
-            "Phase 3 (Weeks 8–10): Algorithmic Fairness, Bias Auditing & Explainable AI",
+            "Phase 3 (Weeks 8â€“10): Algorithmic Fairness, Bias Auditing & Explainable AI",
             [
                 "<b>PII & Demographic Redaction:</b> Complete `app/services/redactor.py` to anonymize gender, ethnicity proxies, candidate names, addresses, and graduation dates prior to ranking.",
                 "<b>Demographic Parity Audit:</b> Implement fairness evaluation metrics (Disparate Impact Ratio, Four-Fifths Rule compliance) across simulated demographic subgroups.",
@@ -416,7 +416,7 @@ def build_pdf(filename="Milestone_Report_Phase_1.pdf"):
             ],
         ),
         (
-            "Phase 4 (Weeks 11–12): Recruiter Analytics Dashboard & Final Capstone Deployment",
+            "Phase 4 (Weeks 11â€“12): Recruiter Analytics Dashboard & Final Capstone Deployment",
             [
                 "<b>Recruiter Comparison Matrix:</b> Interactive side-by-side comparison modal allowing recruiters to evaluate multiple short-listed candidates against the same job description.",
                 "<b>Full Docker Compose Stack:</b> Containerize frontend with Nginx, backend with Uvicorn, and MongoDB with persistent data volumes.",
@@ -428,7 +428,7 @@ def build_pdf(filename="Milestone_Report_Phase_1.pdf"):
     for p_title, p_bullets in roadmap_phases:
         story.append(Paragraph(p_title, style_h2))
         for bullet in p_bullets:
-            story.append(Paragraph(f"• {bullet}", style_body))
+            story.append(Paragraph(f"â€¢ {bullet}", style_body))
         story.append(Spacer(1, 4))
 
     story.append(Spacer(1, 8))
@@ -447,25 +447,25 @@ def build_pdf(filename="Milestone_Report_Phase_1.pdf"):
         ],
         [
             Paragraph("Phase 1: Ingestion, OCR & NER", style_table_cell),
-            Paragraph("Weeks 1–4", style_table_cell),
+            Paragraph("Weeks 1â€“4", style_table_cell),
             Paragraph("Parser, OCR, spaCy NER, MongoDB, React Workstation UI", style_table_cell),
             Paragraph("100% COMPLETE", style_tag_done),
         ],
         [
             Paragraph("Phase 2: Embeddings & Ranking", style_table_cell),
-            Paragraph("Weeks 5–7", style_table_cell),
+            Paragraph("Weeks 5â€“7", style_table_cell),
             Paragraph("Sentence-BERT, Cosine Matching, Weighted Scoring Engine", style_table_cell),
             Paragraph("PLANNED NEXT", style_tag_next),
         ],
         [
             Paragraph("Phase 3: Bias Mitigation & XAI", style_table_cell),
-            Paragraph("Weeks 8–10", style_table_cell),
+            Paragraph("Weeks 8â€“10", style_table_cell),
             Paragraph("PII Redaction, Demographic Parity, Explainable AI Badges", style_table_cell),
             Paragraph("UPCOMING", style_tag_next),
         ],
         [
             Paragraph("Phase 4: Dashboard & Final Release", style_table_cell),
-            Paragraph("Weeks 11–12", style_table_cell),
+            Paragraph("Weeks 11â€“12", style_table_cell),
             Paragraph("Side-by-side Recruiter UI, Docker deployment, Project Report", style_table_cell),
             Paragraph("UPCOMING", style_tag_next),
         ],

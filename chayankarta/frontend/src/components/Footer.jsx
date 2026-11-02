@@ -17,7 +17,7 @@ export default function Footer() {
           Model: en_core_web_sm + EntityRuler
         </span>
         <span className="text-label-sm font-label-sm text-outline font-medium">
-          ResumeAI Engine Phase 1
+          Chayankarta Engine
         </span>
       </div>
     </footer>

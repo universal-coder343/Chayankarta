@@ -110,4 +110,6 @@ pytest
 
 ## License
 
-Academic project. Add a license of your choice (e.g. MIT) if you plan to open-source it.
+Academic project.
+MITS GWALIOR 
+FOR EDUCATIONAL PURPOSES ONLY

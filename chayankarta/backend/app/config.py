@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     # CORS
     cors_origins: str = '["http://localhost:5173"]'
 
+    # Railway / deployment
+    railway_public_domain: str = ""
+
     # Logging
     log_level: str = "INFO"
 
@@ -55,8 +58,12 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins_list(self) -> list[str]:
-        """Parse CORS origins from JSON string to list."""
-        return json.loads(self.cors_origins)
+        """Parse CORS origins from JSON string to list.
+        Automatically includes Railway public domain if set."""
+        origins = json.loads(self.cors_origins)
+        if self.railway_public_domain:
+            origins.append(f"https://{self.railway_public_domain}")
+        return origins
 
     @property
     def default_weights(self) -> dict[str, float]:

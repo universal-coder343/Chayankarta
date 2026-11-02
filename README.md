@@ -66,7 +66,7 @@ source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 python -m spacy download en_core_web_sm
 cp .env.example .env            # set MONGODB_URI etc.
-uvicorn app.main:app --reload
+
 ```
 
 API docs: http://localhost:8000/docs

@@ -1,3 +1,10 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Chayankarta — Docker Compose (local development)
+#
+# Usage:  docker compose up --build
+# Prod:   Deploy to Railway (see DEPLOY.md)
+# ─────────────────────────────────────────────────────────────────────────────
+
 services:
   # ── Backend API ─────────────────────────────────────────────────────────
   api:
@@ -11,41 +18,35 @@ services:
       - ./backend/.env
     environment:
       - MONGODB_URL=mongodb://mongo:27017
-      # Milestone 4 — Semantic Ranking (override defaults here if needed)
       - EMBEDDING_MODEL=all-MiniLM-L6-v2
       - WEIGHT_SEMANTIC=0.40
       - WEIGHT_SKILL=0.35
       - WEIGHT_EXPERIENCE=0.15
       - WEIGHT_EDUCATION=0.10
-      # Milestone 5 — Fairness & PII Redaction
       - ENABLE_REDACTION=true
       - REDACT_INSTITUTIONS=false
-      # Tell HuggingFace to use cached models only (avoids DNS retries on startup)
       - TRANSFORMERS_OFFLINE=1
       - HF_DATASETS_OFFLINE=1
     volumes:
       - ./backend:/app
       - upload_data:/app/uploads
-      # Cache the HuggingFace model downloads between container restarts
       - hf_cache:/root/.cache/huggingface
     depends_on:
       mongo:
         condition: service_healthy
     restart: unless-stopped
 
-  # ── Frontend (Vite dev server) ───────────────────────────────────────────
+  # ── Frontend (production build + nginx) ─────────────────────────────────
   frontend:
-    image: node:20-alpine
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: chayankarta-frontend
-    working_dir: /app
-    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
     ports:
-      - "5173:5173"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      - "3000:3000"
     environment:
-      - VITE_API_URL=http://localhost:8000
+      - PORT=3000
+      - BACKEND_URL=http://api:8000
     depends_on:
       - api
     restart: unless-stopped
